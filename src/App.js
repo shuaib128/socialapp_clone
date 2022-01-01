@@ -21,6 +21,7 @@ import PostdDetailScreen from './screens/PostdDetailScreen';
 import OthersProfile from './screens/OthersProfile';
 import SearchScreen from './screens/SearchScreen';
 import NotificationScreen from './screens/NotificationScreen';
+import NewPostScreen from './screens/NewPostScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -108,6 +109,12 @@ const App = () => {
           </Stack.Screen>
 
           <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
+
+          <Stack.Screen name='NewPostScreen'>
+            {(props) => <NewPostScreen {...props}
+              setAuthToken={setAuthToken} ProfileItems={ProfileItems}
+            />}
+          </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

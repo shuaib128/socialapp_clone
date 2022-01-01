@@ -1,1 +1,1 @@
-export const BackendServer = "https://dull-shrimp-8.loca.lt"
+export const BackendServer = "https://stale-seahorse-86.loca.lt"
