@@ -1,0 +1,1 @@
+export const BackendServer = "https://dull-shrimp-8.loca.lt"
