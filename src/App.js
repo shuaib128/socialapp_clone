@@ -28,6 +28,7 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [ProfileItems, setProfileItems] = useState([])
+  const [Username, setUsername] = useState("")
 
   //Get the token
   const [AuthToken, setAuthToken] = useState(() => {
@@ -50,6 +51,7 @@ const App = () => {
         .then((item) => {
           const token = item ? JSON.parse(item) : ""
           const content_decoded = jwt_decode(token)
+          setUsername(content_decoded.username)
 
           axios.post(`${BackendServer}/api/user/profile`, {
             id: content_decoded.user_id
@@ -113,6 +115,7 @@ const App = () => {
           <Stack.Screen name='NewPostScreen'>
             {(props) => <NewPostScreen {...props}
               setAuthToken={setAuthToken} ProfileItems={ProfileItems}
+              Username={Username}
             />}
           </Stack.Screen>
         </Stack.Navigator>

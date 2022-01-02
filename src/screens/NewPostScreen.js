@@ -1,26 +1,81 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     View, Text, StyleSheet, Image,
-    TouchableOpacity
+    TouchableOpacity, TextInput, Button
 } from 'react-native'
 import HeaderHome from '../components/HeaderComponents/HeaderHome';
 import Footer from '../components/FooterComponents/Footer';
 import ImagePicker from 'react-native-image-crop-picker';
 import { BackendServer } from '../components/Api/BackendServer';
+import axios from 'axios';
 
 
 export default function NewPostScreen(props) {
     const profile_image = props.ProfileItems.image
+    const [CoverImagePreview, setCoverImagePreview] = useState(null)
 
+    //Post items
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [postimage, setPostimage] = useState(null);
+    const [coverimage, setCoverimage] = useState(null);
+    const Author = props.Username
+    const Profile = props.ProfileItems.id
+
+    //Submit Post
+    const NewPost = async () => {
+        //store and send all data
+        URL = `${BackendServer}/mobile/posts/new/post/`
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } }
+        let formData = new FormData();
+
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('Author', Author);
+        formData.append('Profile', Profile);
+
+        try {
+            formData.append('coverImg', coverimage);
+        } catch
+        {
+            console.log('lp');
+        }
+
+        try {
+            for (const img in postimage) {
+                formData.append(`img${img}`, postimage[img].path)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+        axios
+            .post(URL, formData, config)
+            .catch((err) => console.log(err));
+    }
+
+
+    //CoverPhoto
+    const pickCoverPhoto = () => {
+        ImagePicker.openPicker({
+        }).then(image => {
+            setCoverimage(image.path)
+            console.log(image.path);
+            setCoverImagePreview(image.path);
+        }).catch(err => {
+            console.log(err)
+        })
+    };
+
+    //Post Images Piceker
     const pickPicture = () => {
         ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true,
             multiple: true
-        }).then(image => {
-            console.log(image);
-        });
+        }).then(images => {
+            setPostimage(images)
+        }).catch(err => {
+            console.log(err);
+        })
     };
 
 
@@ -38,10 +93,44 @@ export default function NewPostScreen(props) {
                     />
                 </View>
 
-                <TouchableOpacity onPress={pickPicture}>
-                    <Text>Select CoverPhoto</Text>
+                <TouchableOpacity onPress={pickCoverPhoto}>
+                    <Text>Select coverphoto</Text>
                 </TouchableOpacity>
 
+                {CoverImagePreview !== null ?
+                    <Image
+                        style={styles.profile_image_homepage}
+                        source={{
+                            uri: CoverImagePreview
+                        }}
+                    /> :
+                    <View></View>
+                }
+
+                <TextInput
+                    placeholder="User Name"
+                    placeholderTextColor="#989898"
+                    onChangeText={(text) => {
+                        setTitle(text)
+                    }}
+                />
+
+                <TextInput
+                    placeholder="User Name"
+                    placeholderTextColor="#989898"
+                    onChangeText={(text) => {
+                        setDescription(text)
+                    }}
+                />
+
+                <TouchableOpacity onPress={pickPicture}>
+                    <Text>Select Post Images</Text>
+                </TouchableOpacity>
+
+                <Button
+                    title='Post'
+                    onPress={NewPost}
+                />
             </View>
 
             <Footer

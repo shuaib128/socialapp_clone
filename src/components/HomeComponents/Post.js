@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import {
     View, Text, Image,
-    StyleSheet, ScrollView, Dimensions, TouchableOpacity
+    StyleSheet, ScrollView, Dimensions,
+    TouchableOpacity, FlatList
 } from 'react-native'
 import { BackendServer } from '../Api/BackendServer';
 import axios from 'axios';
@@ -14,15 +15,18 @@ export default function Post(props) {
     const [Posts, setPost] = useState(() => {
         axios.get(`${BackendServer}/api/posts/`)
             .then(res => setPost(res.data))
+            .catch(function (error) {
+                throw (error.response);
+            })
     })
     if (!Posts) return <Text>Loading..</Text>
 
     return (
         <View style={styles.Posts}>
-            <ScrollView
-                scrollIndicatorInsets={false}
-            >
-                {Posts && Posts.map((post, index) => (
+            <FlatList
+                keyExtractor={(item, index) => index.toString()}
+                data={Posts}
+                renderItem={({ item, index }) => (
                     <View style={styles.Post} key={index}>
                         <View style={styles.post_header}>
                             <View style={styles.image_profile_name}>
@@ -30,20 +34,20 @@ export default function Post(props) {
                                     activeOpacity={.6}
                                     onPressIn={() => {
                                         props.navigation && props.navigation.navigate('OthersProfile', {
-                                            UserID: post.ProfileItems.id
+                                            UserID: item.ProfileItems.id
                                         })
                                     }}
                                 >
                                     <Image
                                         source={{
-                                            uri: post.ProfileItems.image
+                                            uri: item.ProfileItems.image
                                         }}
                                         style={styles.profiletImage}
                                     />
                                 </TouchableOpacity>
 
                                 <Text style={styles.profile_name}>
-                                    {post.Author}
+                                    {item.Author}
                                 </Text>
                             </View>
                             <Ionicons
@@ -58,7 +62,7 @@ export default function Post(props) {
                             horizontal={true}
                             pagingEnabled
                         >
-                            {post.images.map((image, index) => (
+                            {item.images.map((image, index) => (
                                 <View style={styles.post_img} key={index} >
                                     <Image
                                         source={{
@@ -123,12 +127,12 @@ export default function Post(props) {
                             }}>
                                 <Text style={styles.liked_by}>
                                     Liked by
-                                    <Text style={styles.liked_by_first}> {post.likes.length} </Text>
+                                    <Text style={styles.liked_by_first}> {item.likes.length} </Text>
                                     Peoples
                                 </Text>
 
                                 <Text style={styles.post_des_text}>
-                                    {post.description.slice(0, 150)}....
+                                    {item.description.slice(0, 150)}....
                                 </Text>
 
                                 <TouchableOpacity
@@ -136,7 +140,7 @@ export default function Post(props) {
                                     style={{ marginLeft: -1 }}
                                     onPressIn={() => {
                                         props.navigation && props.navigation.navigate('PostdDetailScreen', {
-                                            PostID: post.id
+                                            PostID: item.id
                                         })
                                     }}
                                 >
@@ -150,7 +154,7 @@ export default function Post(props) {
                                 activeOpacity={.7}
                                 onPressIn={() => {
                                     props.navigation && props.navigation.navigate('PostdDetailScreen', {
-                                        PostID: post.id
+                                        PostID: item.id
                                     })
                                 }}
                             >
@@ -158,19 +162,19 @@ export default function Post(props) {
                                     styles.post_des_text,
                                     { marginTop: 5, color: "#8e8e8e" }
                                 ]}>
-                                    View all {post.comments.length} comments
+                                    View all {item.comments.length} comments
                                 </Text>
                             </TouchableOpacity>
                             <Text style={[
                                 styles.post_des_text,
                                 { color: "#8e8e8e", fontSize: 15 }
                             ]}>
-                                {post.whenpublished}
+                                {item.whenpublished}
                             </Text>
                         </View>
                     </View>
-                ))}
-            </ScrollView>
+                )}
+            />
         </View>
     )
 }
